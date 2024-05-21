@@ -5,25 +5,44 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 from math import sqrt
 
-# low_low = pd.read_csv('C:/Users/Lazar/Downloads/low-low.csv')
-# low_medium = pd.read_csv('C:/Users/Lazar/Downloads/low-medium.csv')
-# low_high = pd.read_csv('C:/Users/Lazar/Downloads/low-high.csv')
-# medium_low = pd.read_csv('C:/Users/Lazar/Downloads/medium-low.csv')
-# medium_medium = pd.read_csv('C:/Users/Lazar/Downloads/medium-medium.csv')
-# medium_high = pd.read_csv('C:/Users/Lazar/Downloads/medium-high.csv')
-# high_low = pd.read_csv('C:/Users/Lazar/Downloads/high-low.csv')
-# high_medium = pd.read_csv('C:/Users/Lazar/Downloads/high-medium.csv')
-# high_high = pd.read_csv('C:/Users/Lazar/Downloads/high-high.csv')
+lnd = pd.read_csv('/london_crime.csv')
 
-dfs = [low_low, low_medium, low_high, medium_low, medium_medium, medium_high, high_low, high_medium, high_high]
+lnd['mrd_log'] = np.log(lnd['minor_roads_dens'])
+lnd['td_cbrt'] = np.cbrt(lnd['tree_dens'])
+lnd['poid_cbrt'] = np.cbrt(lnd['poi_dens'])
+lnd['cr_dens'] = np.log(lnd['cr_dens'])
+
+lnd = lnd[lnd['td_cbrt'] > 0.1]
+lnd = lnd[lnd['poid_cbrt'] > 0.1]
+
 df_n = ['low_low', 'low_medium', 'low_high', 'medium_low', 'medium_medium', 'medium_high', 'high_low', 'high_medium',
         'high_high']
+df_no = ['low', 'medium', 'high']
 targ = 'cr_dens'
-num_features = ['ma_morf', 'minor_roads_dens', 'tree_dens', 'poi_dens']
-ntarg_f = ['cr_dens', 'ma_morf', 'minor_roads_dens', 'tree_dens', 'poi_dens']
-cat_features = ['empt_place', 'parks', 'rail', 'trunk', 'morfotype_unique']
+num_features = ['mrd_log', 'td_cbrt', 'poid_cbrt']
+ntarg_f = ['cr_dens', 'mrd_log', 'td_cbrt', 'poid_cbrt']
+cat_features = ['ma_morf', 'empt_place', 'parks', 'rail', 'trunk', 'morfotype_unique']
+ctarg_f = ['cr_dens', 'ma_morf', 'empt_place', 'parks', 'rail', 'trunk', 'morfotype_unique']
+clusters = ['low_low', 'low_medium', 'low_high', 'medium_low', 'medium_medium', 'medium_high', 'high_low',
+            'high_medium', 'high_high']
 
-del (low_low, low_medium, low_high, medium_low, medium_medium, medium_high, high_low, high_medium, high_high)
+low_low = lnd[lnd['cluster'] == 11]
+low_medium = lnd[lnd['cluster'] == 12]
+low_high = lnd[lnd['cluster'] == 13]
+medium_low = lnd[lnd['cluster'] == 21]
+medium_medium = lnd[lnd['cluster'] == 22]
+medium_high = lnd[lnd['cluster'] == 23]
+high_low = lnd[lnd['cluster'] == 31]
+high_medium = lnd[lnd['cluster'] == 32]
+high_high = lnd[lnd['cluster'] == 33]
+low = lnd[lnd['morfotype'] == 1]
+medium = lnd[lnd['morfotype'] == 2]
+high = lnd[lnd['morfotype'] == 3]
+
+dfs = [low_low, low_medium, low_high, medium_low, medium_medium, medium_high, high_low, high_medium, high_high]
+df = [low, high, medium]
+
+del (low_low, low_medium, low_high, medium_low, medium_medium, medium_high, high_low, high_medium, high_high, lnd)
 
 
 # hists
@@ -278,7 +297,7 @@ for i in range(len(dfs)):
 # second part (working with transformed features) ----------------------------------------------------------------------
 
 # reading data
-lnd = pd.read_csv('C:/Users/Lazar/Downloads/london_crime.csv')
+lnd = pd.read_csv('/london_crime.csv')
 
 lnd['mrd_log'] = np.log(lnd['minor_roads_dens'])
 lnd['td_cbrt'] = np.cbrt(lnd['tree_dens'])
@@ -357,7 +376,7 @@ for i in num_features:
         mpl.rc('font', size=8)
         fig.suptitle(i, fontsize=14)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_hist_2_factor.png')
+        fig.savefig(f'/{i}_hist_2_factor.png')
 
 # hists for 1-factor
 for i in num_features:
@@ -378,7 +397,7 @@ for i in num_features:
         mpl.rc('font', size=8)
         fig.suptitle(i, fontsize=14)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_hist_1_factor.png')
+        fig.savefig(f'/{i}_hist_1_factor.png')
 
 
 # shapiro-wilk tests for 2-factor
@@ -404,7 +423,7 @@ for i in range(len(dfs)):
         sns.heatmap(dfs[i][ntarg_f].corr(), annot=True, cbar_kws={'orientation': 'horizontal'})
         mpl.rc('font', size=8)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_corrmatrix_2_factor.png')
+        fig.savefig(f'/{i}_corrmatrix_2_factor.png')
 
 # corr matrices for 1-factor
 for i in range(len(df)):
@@ -413,7 +432,7 @@ for i in range(len(df)):
         sns.heatmap(df[i][ntarg_f].corr(), annot=True, cbar_kws={'orientation': 'horizontal'})
         mpl.rc('font', size=8)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_corrmatrix_1_factor.png')
+        fig.savefig(f'/{i}_corrmatrix_1_factor.png')
 
 
 # categorical features analyze -----------------------------------------------------------------------------------------
@@ -460,7 +479,7 @@ for i in cat_features:
         mpl.rc('font', size=8)
         fig.suptitle(i, fontsize=14)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_violinplot_2_factor.png')
+        fig.savefig(f'/{i}_violinplot_2_factor.png')
 
 # violinplots for 1-factor
 for i in cat_features:
@@ -481,7 +500,7 @@ for i in cat_features:
         mpl.rc('font', size=8)
         fig.suptitle(i, fontsize=14)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_violinplot_1_factor.png')
+        fig.savefig(f'/{i}_violinplot_1_factor.png')
 
 
 # spearman for non-numbered characteristics (2-factor)
@@ -493,7 +512,7 @@ for i in range(len(dfs)):
                     cbar_kws={'orientation': 'horizontal'}, xticklabels=ctarg_f, yticklabels=ctarg_f)
         mpl.rc('font', size=8)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_spearman_2_factor.png')
+        fig.savefig(f'/{i}_spearman_2_factor.png')
 
 # spearman for non-numbered characteristics (1-factor)
 for i in range(len(df)):
@@ -502,14 +521,14 @@ for i in range(len(df)):
         sns.heatmap(spearmanr(df[i][targ], df[i][cat_features])[0], annot=True, cbar_kws={'orientation': 'horizontal'})
         mpl.rc('font', size=8)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_spearman_1_factor.png')
+        fig.savefig(f'/{i}_spearman_1_factor.png')
 
 
 # second point first part (clearing the numerical values) --------------------------------------------------------------
 # second part (working with transformed features) ----------------------------------------------------------------------
 
 # reading data
-lnd = pd.read_csv('C:/Users/Lazar/Downloads/london_crime.csv')
+lnd = pd.read_csv('/london_crime.csv')
 
 lnd['mrd_log'] = np.log(lnd['minor_roads_dens'])
 lnd['td_cbrt'] = np.cbrt(lnd['tree_dens'])
@@ -592,7 +611,7 @@ for i in num_features:
         mpl.rc('font', size=8)
         fig.suptitle(i, fontsize=14)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_hist_2_factor.png')
+        fig.savefig(f'/{i}_hist_2_factor.png')
 
 # corr matrices for 2-factor
 for i in range(len(dfs)):
@@ -601,7 +620,7 @@ for i in range(len(dfs)):
         sns.heatmap(dfs[i][ntarg_f].corr(), annot=True, cbar_kws={'orientation': 'horizontal'})
         mpl.rc('font', size=8)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/{i}_corrmatrix_2_factor.png')
+        fig.savefig(f'/{i}_corrmatrix_2_factor.png')
 
 # VIF for 2-factor
 from patsy import dmatrices
@@ -674,7 +693,7 @@ for i in range(len(importance_rates)):
 
 
 # building scatterplots
-lnd = pd.read_csv('C:/Users/Lazar/Downloads/london_crime.csv')
+lnd = pd.read_csv('/london_crime.csv')
 
 lnd['mrd_log'] = np.log(lnd['minor_roads_dens'])
 lnd['td_cbrt'] = np.cbrt(lnd['tree_dens'])
@@ -739,7 +758,7 @@ for i in range(len(dfs)):
         mpl.rc('font', size=8)
         fig.suptitle(df_n[i], fontsize=14)
         plt.show()
-        fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/scatter_{df_n[i]}.png')
+        fig.savefig(f'/scatter_{df_n[i]}.png')
 
 
 fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 10))
@@ -773,4 +792,4 @@ ax.set_ylabel('Концентрация преступлений')
 mpl.rc('font', size=8)
 fig.suptitle('lnd', fontsize=14)
 plt.show()
-fig.savefig(f'C:/Users/Lazar/Downloads/london_graphs/scatter_lnd.png')
+fig.savefig(f'/scatter_lnd.png')
